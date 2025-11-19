@@ -22,18 +22,16 @@ app.get("/code/:code", (req, res) => {
 });
 const redirectRouter = require("./routes/redirect");
 const linksRouter = require("./routes/links"); 
-app.get('/healthz', async (req, res) => {
+app.get("/healthz", async (req, res) => {
   const start = Date.now();
   const info = {
     ok: true,
-    version: "1.0",                      // app version you can bump when releasing
-    node: process.version,               // runtime node version
+    version: "1.0",
+    node: process.version,
     uptimeSeconds: Math.floor(process.uptime()),
   };
 
-  // Optional: lightweight DB check
   try {
-    // `sequelize` comes from your models/db.js (you already have it)
     await sequelize.authenticate();
     info.db = { ok: true };
   } catch (err) {
@@ -41,10 +39,7 @@ app.get('/healthz', async (req, res) => {
     info.db = { ok: false, error: String(err.message || err) };
   }
 
-  // timing info (how long the health check took)
   info.checkMs = Date.now() - start;
-
-  // respond 200 when ok true, otherwise 500 for unhealthy
   return res.status(info.ok ? 200 : 500).json(info);
 });
 
@@ -59,13 +54,22 @@ app.use("/", redirectRouter);
 
 
 
-
 (async () => {
-  await testConnection();
-  await sequelize.sync();       // <-- THIS CREATES THE TABLE !!!
-  console.log("✅ Table synced");
+  try {
+    await testConnection();
+  } catch (err) {
+    console.warn("DB testConnection failed (continuing):", err?.message || err);
+  }
+
+  try {
+    // alter: true will try to keep tables in sync — safe for development/demo
+    await sequelize.sync({ alter: true });
+    console.log("✅ Table(s) synced");
+  } catch (err) {
+    console.error("⚠️ Sequelize sync error (continuing):", err?.message || err);
+  }
 
   app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`🚀 Server running on http://localhost:${PORT} (PORT=${PORT})`);
   });
 })();
