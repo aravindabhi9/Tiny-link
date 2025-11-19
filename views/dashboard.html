@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TinyLink Dashboard</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+
+<body>
+  <header class="header">
+    <div class="wrap">
+      <div class="logo">TinyLink</div>
+      <nav>
+        <a href="/healthz">Health</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="form-card fade-in">
+      <h2 class="page-title">Create a Short Link</h2>
+      <p class="helper">Enter any URL and optionally your custom short code.</p>
+
+      <form id="add-link-form">
+        <label>Long URL:</label>
+        <!-- changed id to targetUrl to match dashboard.js -->
+        <input type="url" id="targetUrl" class="input" placeholder="https://example.com/page">
+
+        <label>Custom Code (optional):</label>
+        <input type="text" id="customCode" class="input" placeholder=" letters/numbers">
+
+        <!-- container for form messages (dashboard.js expects #form-message) -->
+        <div id="form-message" class="form-message" aria-live="polite"></div>
+
+        <button type="submit" class="btn-primary">Create Short Link</button>
+      </form>
+    </div>
+
+    <div class="search-wrap">
+      <input type="text" id="searchInput" placeholder="Search by code or URL…">
+    </div>
+
+    <div class="table-wrap fade-in">
+      <table class="links" id="linksTable">
+        <thead>
+          <tr>
+            <th>Short Link</th>
+            <th>Target URL</th>
+            <th>Clicks</th>
+            <th>Last Clicked</th>
+            <th class="actions">Actions</th>
+          </tr>
+        </thead>
+
+        <!-- changed id to linksTableBody to match dashboard.js -->
+        <tbody id="linksTableBody">
+          <!-- Auto filled by dashboard.js -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  
+  </div>
+
+  <!-- script at end is fine (DOM already present) -->
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

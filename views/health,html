@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TinyLink — Health</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    /* tiny overrides for the health page */
+    .health-card {
+      max-width:720px;
+      margin:40px auto;
+      padding:20px;
+      border-radius:14px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.96), #fff);
+      box-shadow: 0 12px 36px rgba(15,23,42,0.06);
+      border: 1px solid rgba(15,23,42,0.03);
+    }
+    .kv { font-weight:700; margin-right:8px; color:#0f172a; }
+    .muted { color:#6b7280; }
+    pre { background:#f6f8fb; padding:12px; border-radius:8px; overflow:auto; }
+    .ok { color: #16a34a; font-weight:700; }
+    .bad { color: #ef4444; font-weight:700; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="wrap">
+      <div class="logo">TinyLink</div>
+      <nav><a href="/">Dashboard</a></nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="health-card">
+      <h2 style="margin:0 0 8px;">System Health</h2>
+      <p class="muted" style="margin:0 0 14px;">This page shows a human-readable view of the health endpoint (<code>/healthz</code>).</p>
+
+      <div id="summary" style="margin-bottom:12px;">
+        Loading...
+      </div>
+
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
+        <button id="refreshBtn" class="btn-primary" style="width:auto;padding:8px 14px;min-width:120px;font-weight:700;">Refresh</button>
+        <a id="rawLink" class="btn-muted" href="/healthz" target="_blank" style="align-self:center;padding:8px 12px;border-radius:8px;text-decoration:none;">Open raw JSON</a>
+      </div>
+
+      <div>
+        <h4 style="margin:12px 0 6px">Full JSON</h4>
+        <pre id="rawJson">{ loading }</pre>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    async function loadHealth() {
+      const summaryEl = document.getElementById('summary');
+      const rawEl = document.getElementById('rawJson');
+      try {
+        const res = await fetch('/healthz', {cache: "no-store"});
+        const data = await res.json();
+        // show readable summary
+        const ok = data.ok === true;
+        summaryEl.innerHTML = ''
+          + '<span class="' + (ok ? 'ok' : 'bad') + '">' + (ok ? 'OK' : 'UNHEALTHY') + '</span>'
+          + ' — version: <strong>' + (data.version || '-') + '</strong>'
+          + ' • node: <strong>' + (data.node || '-') + '</strong>'
+          + ' • uptime: <strong>' + (data.uptimeSeconds != null ? data.uptimeSeconds + 's' : '-') + '</strong>';
+        rawEl.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        summaryEl.innerHTML = '<span class="bad">Error</span> — could not fetch /healthz';
+        rawEl.textContent = String(err);
+      }
+    }
+
+    document.getElementById('refreshBtn').addEventListener('click', loadHealth);
+    loadHealth();
+  </script>
+</body>
+</html>
